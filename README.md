@@ -37,6 +37,12 @@ check the "Set up authorized keys for shared user" section in the playbook
 ansible-playbook -i inventory.ini debian_server_setup_playbook.yml
 ```
 
+5. Test the setup
+
+```bash
+ssh -i <path-to-private-ssh-key> snapchain@<server-ip>
+```
+
 ## Notes
 
 The playbook now only supports debian servers (default on GCP)
