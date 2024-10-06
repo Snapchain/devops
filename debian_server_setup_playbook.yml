@@ -1,0 +1,86 @@
+---
+- name: Setup snapchain user with Oh My Zsh and Docker on Debian
+  hosts: all
+  become: yes
+  vars:
+    shared_user: snapchain
+    sudo_group: sudo
+
+  tasks:
+    - name: Ensure required packages are installed
+      apt:
+        name: 
+          - zsh
+          - git
+          - ca-certificates
+          - curl
+        state: present
+        update_cache: yes
+
+    - name: Create shared user
+      user:
+        name: "{{ shared_user }}"
+        groups: "{{ sudo_group }}"
+        shell: /bin/zsh
+
+    - name: Set up authorized keys for shared user
+      authorized_key:
+        user: "{{ shared_user }}"
+        key: "{{ item }}"
+      loop:
+        - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCtCASsLB8vYFoT7/htiEvspM7WBxv4E5J5/TCYvzkHHj+NYguzs7YKv8ivh2zA15O/n313EzTYcLgccbRDU6icQLxoH4MmH7Q5CU2czja9FdC+Kn1erBaJjr7rFBc7cR0XSRyWsyoHg1yIF0yGJDgGgEeNVarJrx2fbRL7xGH2pvWzxrIXHEPHmaUUjMcZ7jCpp+x+dzMl7iZ/e/MgXg6MIGjM4ONp2Z7ndyxAI7RF2bt708znxHoJX0i/hfbkEUAAwM/G7iuyLkblB1SkNhLMcKGq3lVuEeVAl+zW1qiNq0hfXZURMNjUXzmfyjAz4GBDddZxhVFpSRSkJ0YuuerQ7zefdvdh7/G9aAiW8VbwJgGCzna2avMHOVoX7ZsphDyv+EQJk0blUgOlbINkJm/mELskUF4W2gqNFIcJq3wHh8ZEj3QV7+FzCoj75vAcm9yy1i5qE6LUr13xych5E9qSifD4OyDfQ0a0GW9iLmxcP8bBNv+dKoSrdRUXsa4FloM= zidong@snapchain.dev"
+        - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDTliN+/C53s3pgw0omi80ofjCIx85twtkwR4YBPPvVZs2yNRK8AB01vOyafYv0XuY5fZzn0gU0z6bQYU1zAWMo1251LBc4eNrJrZC0B79/aDoYH/CaDvZPIOlsVckktwNg9pr/SP40oW4hLHpa7lvcCe0HX2PsXKszPls8CZMuK+ix33eoGvJHTVVO55kn709icgyh88lpsfvQ8FNM/hM58kT55q2HDNIrHxQCI0/mb08rv7QAylY4sel3CPvEWZD9RuSY7x7Di7OiDgROHSh1ok4/98XfTNdf+KAzzyJ7xIR4JLtFGV5BwJVjfnlKYjbY03HBizd/3y48mlY3Ijf7UoLe1I2ZDcsCjlhwj+Z53WCTQGgMA2DoLkmGN+r6UXwCf0lQGxKMBBHJxOvMepaVrKMsFWs0Qmgxi8yIB6PIsX5FDPf4ofSzIHHXidIzCE5yZ3rAV8Q7pFEsum41HZntHb50FYxZgvNa2vSEJrG2hwxRibRhSv4GbTR51pWKTLmBfIrHwC9SN+tvX9gETP+dq5LdXTRbuWjfrVh/HHsVXbugSpp4+0i5PVkoVVTYx2G7xzXi10z5WRHXEESKHp/AfshpYuPkTqVjQoj7556Sy5O9Aej8+t+rVLaSWSxSjV7gGXnkws7Ru5YOY51xOrKcrjQkHPkIw0S49Y0Kso4O0Q== yeungparkhay@gmail.com"
+
+    - name: Disable password authentication
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+      notify: Restart SSH
+
+    - name: Install Oh My Zsh
+      ansible.builtin.shell:
+        cmd: sudo -u {{ shared_user }} sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+        creates: "/home/{{ shared_user }}/.oh-my-zsh"
+
+    - name: Create Docker GPG keyring directory
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Add Docker's official GPG key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/debian/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+
+    - name: Add Docker repository
+      ansible.builtin.shell: |
+        echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+        $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+        tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+
+    - name: Add snapchain user to docker group
+      user:
+        name: "{{ shared_user }}"
+        groups: docker
+        append: yes
+
+  handlers:
+    - name: Restart SSH
+      service:
+        name: sshd
+        state: restarted
