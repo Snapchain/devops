@@ -10,10 +10,11 @@
     - name: Ensure required packages are installed
       apt:
         name: 
-          - zsh
-          - git
+          - build-essential
           - ca-certificates
           - curl
+          - git
+          - zsh
         state: present
         update_cache: yes
 
