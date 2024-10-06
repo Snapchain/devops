@@ -1,0 +1,45 @@
+---
+- import_playbook: debian_server_setup_playbook.yml
+
+- name: Setup the server for the op-babylon devnet
+  hosts: all
+  become: yes
+
+  vars:
+    go_version: "1.23.2"  # Adjust this to the desired Go version
+    shared_user: snapchain  # Ensure this matches the base playbook
+
+  tasks:
+    - name: Check existing Go version
+      ansible.builtin.command: /usr/local/go/bin/go version
+      register: go_version_check
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Remove existing Go installation if version mismatch
+      ansible.builtin.file:
+        path: /usr/local/go
+        state: absent
+      when: go_version_check.rc != 0 or go_version not in go_version_check.stdout
+
+    - name: Download and install Go if needed
+      ansible.builtin.unarchive:
+        src: "https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz"
+        dest: "/usr/local"
+        remote_src: yes
+      when: go_version_check.rc != 0 or go_version not in go_version_check.stdout
+
+    - name: Set Go environment variables
+      ansible.builtin.lineinfile:
+        path: "/home/{{ shared_user }}/.zshrc"
+        line: 'export PATH=$PATH:/usr/local/go/bin'
+
+    # TODO: this step failed with "Failed to set permissions on the temporary files Ansible needs to
+    # create when becoming an unprivileged user"
+    # - name: Clone Babylon integration deployment repository
+    #   ansible.builtin.git:
+    #     repo: 'git@github.com:babylonlabs-io/babylon-integration-deployment.git'
+    #     dest: '/home/{{ shared_user }}/babylon-integration-deployment'
+    #     version: main
+    #     accept_hostkey: yes
+    #   become_user: "{{ shared_user }}"
