@@ -53,14 +53,12 @@
         dest: "/home/{{ shared_user }}/.oh-my-zsh/custom/themes/powerlevel10k"
         version: master
         update: no
-      become_user: "{{ shared_user }}"
 
     - name: Set Powerlevel10k theme in .zshrc
       ansible.builtin.lineinfile:
         path: "/home/{{ shared_user }}/.zshrc"
         regexp: "^ZSH_THEME="
         line: 'ZSH_THEME="powerlevel10k/powerlevel10k"'
-      become_user: "{{ shared_user }}"
 
     - name: Create Docker GPG keyring directory
       file:
