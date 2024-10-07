@@ -8,6 +8,8 @@
   vars:
     go_version: "1.23.2"  # Adjust this to the desired Go version
     shared_user: snapchain  # Ensure this matches the base playbook
+    go_version: "1.23.2" # Adjust this to the desired Go version
+    shared_user: snapchain # Ensure this matches the base playbook
     nvm_version: "0.40.1"
     node_version: "20.18.0"
     pnpm_version: "9.12.1"
@@ -36,6 +38,7 @@
       ansible.builtin.lineinfile:
         path: "/home/{{ shared_user }}/.zshrc"
         line: 'export PATH=$PATH:/usr/local/go/bin'
+        line: "export PATH=$PATH:/usr/local/go/bin"
 
     - name: Install NVM
       ansible.builtin.shell: >
@@ -67,9 +70,10 @@
 
     - name: Install Foundry
       ansible.builtin.shell: |
-        curl -L https://foundry.paradigm.xyz | bash
-        /home/{{ shared_user }}/.foundry/bin/foundryup
+        curl -L https://foundry.paradigm.xyz | sudo -u {{ shared_user }} zsh
+        sudo -u {{ shared_user }} zsh -c 'source ~/.zshrc && foundryup'
       args:
+        executable: /bin/zsh
         creates: /home/{{ shared_user }}/.foundry/bin/forge
 
     - name: Install jq
@@ -86,7 +90,6 @@
       ansible.builtin.lineinfile:
         path: "/home/{{ shared_user }}/.zshrc"
         line: 'eval "$(direnv hook zsh)"'
-
 
     # TODO: this step failed with "Failed to set permissions on the temporary files Ansible needs to
     # create when becoming an unprivileged user"
