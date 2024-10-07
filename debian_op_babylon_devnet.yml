@@ -13,6 +13,7 @@
     pnpm_version: "9.12.1"
 
   tasks:
+    # TODO: this will fail if go is not installed
     - name: Check existing Go version
       ansible.builtin.command: /usr/local/go/bin/go version
       register: go_version_check
