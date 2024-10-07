@@ -9,7 +9,7 @@
   tasks:
     - name: Ensure required packages are installed
       apt:
-        name: 
+        name:
           - build-essential
           - ca-certificates
           - curl
@@ -18,12 +18,13 @@
         state: present
         update_cache: yes
 
-    # TODO: this steps is not idempotent
-    - name: Create shared user
-      user:
+    - name: Ensure shared user exists and create it if not
+      ansible.builtin.user:
         name: "{{ shared_user }}"
         groups: "{{ sudo_group }}"
+        append: yes
         shell: /bin/zsh
+        state: present
 
     - name: Set up authorized keys for shared user
       authorized_key:
@@ -37,8 +38,8 @@
     - name: Disable password authentication
       lineinfile:
         path: /etc/ssh/sshd_config
-        regexp: '^PasswordAuthentication'
-        line: 'PasswordAuthentication no'
+        regexp: "^PasswordAuthentication"
+        line: "PasswordAuthentication no"
       notify: Restart SSH
 
     - name: Install Oh My Zsh
@@ -53,7 +54,6 @@
         version: master
         update: no
       become_user: "{{ shared_user }}"
-      creates: "/home/{{ shared_user }}/.oh-my-zsh/custom/themes/powerlevel10k"
 
     - name: Set Powerlevel10k theme in .zshrc
       ansible.builtin.lineinfile:
@@ -66,21 +66,19 @@
       file:
         path: /etc/apt/keyrings
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Add Docker's official GPG key
       ansible.builtin.get_url:
         url: https://download.docker.com/linux/debian/gpg
         dest: /etc/apt/keyrings/docker.asc
-        mode: '0644'
+        mode: "0644"
 
-    # TODO: this steps is not idempotent
     - name: Add Docker repository
-      ansible.builtin.shell: |
-        echo \
-        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
-        $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-        tee /etc/apt/sources.list.d/docker.list > /dev/null
+      ansible.builtin.shell:
+        cmd: |
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+        creates: /etc/apt/sources.list.d/docker.list
 
     - name: Install Docker
       apt:
@@ -93,12 +91,12 @@
         state: present
         update_cache: yes
 
-    # TODO: this steps is not idempotent
-    - name: Add snapchain user to docker group
-      user:
+    - name: Add Snapchain user to Docker group
+      ansible.builtin.user:
         name: "{{ shared_user }}"
         groups: docker
         append: yes
+        state: present
 
   handlers:
     - name: Restart SSH
