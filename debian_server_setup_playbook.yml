@@ -54,6 +54,8 @@
         version: master
         update: no
 
+    # TODO: on initial startup it starts an interactive prompt which is a bit annoying.
+    # we can probably hard code the settings file and set it directly to skip this step
     - name: Set Powerlevel10k theme in .zshrc
       ansible.builtin.lineinfile:
         path: "/home/{{ shared_user }}/.zshrc"
