@@ -8,6 +8,9 @@
   vars:
     go_version: "1.23.2"  # Adjust this to the desired Go version
     shared_user: snapchain  # Ensure this matches the base playbook
+    nvm_version: "0.40.1"
+    node_version: "20.18.0"
+    pnpm_version: "9.12.1"
 
   tasks:
     - name: Check existing Go version
@@ -33,6 +36,57 @@
       ansible.builtin.lineinfile:
         path: "/home/{{ shared_user }}/.zshrc"
         line: 'export PATH=$PATH:/usr/local/go/bin'
+
+    - name: Install NVM
+      ansible.builtin.shell: >
+        sudo -u {{ shared_user }} bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{ nvm_version }}/install.sh | bash'
+      args:
+        creates: "/home/{{ shared_user }}/.nvm/nvm.sh"
+
+    - name: Add NVM to .zshrc
+      ansible.builtin.blockinfile:
+        path: "/home/{{ shared_user }}/.zshrc"
+        block: |
+          export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # Optional: bash completion
+
+    - name: Install Node.js using NVM
+      ansible.builtin.shell: |
+        . /home/{{ shared_user }}/.nvm/nvm.sh
+        nvm install {{ node_version }}
+        nvm alias default {{ node_version }}
+      args:
+        executable: /bin/bash
+
+    - name: Install pnpm
+      ansible.builtin.shell: |
+        curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION={{ pnpm_version }} sh -
+      args:
+        executable: /bin/bash
+
+    - name: Install Foundry
+      ansible.builtin.shell: |
+        curl -L https://foundry.paradigm.xyz | bash
+        /home/{{ shared_user }}/.foundry/bin/foundryup
+      args:
+        creates: /home/{{ shared_user }}/.foundry/bin/forge
+
+    - name: Install jq
+      ansible.builtin.apt:
+        name: jq
+        state: present
+
+    - name: Install direnv
+      ansible.builtin.apt:
+        name: direnv
+        state: present
+
+    - name: Add direnv hook to .zshrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ shared_user }}/.zshrc"
+        line: 'eval "$(direnv hook zsh)"'
+
 
     # TODO: this step failed with "Failed to set permissions on the temporary files Ansible needs to
     # create when becoming an unprivileged user"
