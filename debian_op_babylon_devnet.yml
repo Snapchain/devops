@@ -6,7 +6,7 @@
   become: yes
 
   vars:
-    go_version: "1.23.2" # Adjust this to the desired Go version
+    go_version: "1.22.6" # Match optimism/versions.json
     shared_user: snapchain # Ensure this matches the base playbook
     nvm_version: "0.40.1"
     node_version: "20.18.0"
@@ -51,6 +51,7 @@
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
           [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # Optional: bash completion
 
+    # TODO: this step is not idempotent
     - name: Install Node.js using NVM
       ansible.builtin.shell: |
         . /home/{{ shared_user }}/.nvm/nvm.sh
@@ -59,6 +60,7 @@
       args:
         executable: /bin/bash
 
+    # TODO: this step is not idempotent
     - name: Install pnpm
       ansible.builtin.shell: |
         curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION={{ pnpm_version }} sh -
