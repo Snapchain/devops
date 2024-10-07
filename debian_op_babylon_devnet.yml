@@ -6,8 +6,6 @@
   become: yes
 
   vars:
-    go_version: "1.23.2"  # Adjust this to the desired Go version
-    shared_user: snapchain  # Ensure this matches the base playbook
     go_version: "1.23.2" # Adjust this to the desired Go version
     shared_user: snapchain # Ensure this matches the base playbook
     nvm_version: "0.40.1"
@@ -37,7 +35,6 @@
     - name: Set Go environment variables
       ansible.builtin.lineinfile:
         path: "/home/{{ shared_user }}/.zshrc"
-        line: 'export PATH=$PATH:/usr/local/go/bin'
         line: "export PATH=$PATH:/usr/local/go/bin"
 
     - name: Install NVM
