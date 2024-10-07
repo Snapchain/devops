@@ -76,9 +76,11 @@
         executable: /bin/zsh
         creates: /home/{{ shared_user }}/.foundry/bin/forge
 
-    - name: Install jq
+    - name: Install more dependencies
       ansible.builtin.apt:
-        name: jq
+        name: 
+          - jq
+          - netcat-openbsd
         state: present
 
     - name: Install direnv
