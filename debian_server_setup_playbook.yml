@@ -78,6 +78,13 @@
         group: "{{ shared_user }}"
         mode: "0644"
 
+    - name: Ensure mouse support is enabled in Vim
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_env.HOME }}/.vimrc"
+        line: "set mouse=a"
+        state: present
+        create: yes
+
     - name: Create Docker GPG keyring directory
       file:
         path: /etc/apt/keyrings
