@@ -26,6 +26,14 @@
         shell: /bin/zsh
         state: present
 
+    - name: Ensure shared user has passwordless sudo
+      lineinfile:
+        path: /etc/sudoers
+        regexp: "^{{ shared_user }} "
+        line: "{{ shared_user }} ALL=(ALL) NOPASSWD:ALL"
+        state: present
+        validate: "visudo -cf %s"
+
     - name: Set up authorized keys for shared user
       authorized_key:
         user: "{{ shared_user }}"
