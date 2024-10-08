@@ -105,13 +105,13 @@
 
     - name: Check if repository folder exists
       ansible.builtin.stat:
-        path: "/home/{{ shared_user }}/babylon-integration-deployment-test"
+        path: "/home/{{ shared_user }}/babylon-integration-deployment"
       register: repo_folder_stat
 
     - name: Clone Babylon integration deployment repository
       ansible.builtin.git:
         repo: "git@github.com:babylonlabs-io/babylon-integration-deployment.git"
-        dest: "/home/{{ shared_user }}/babylon-integration-deployment-test"
+        dest: "/home/{{ shared_user }}/babylon-integration-deployment"
         version: feat/start-l2-sepolia # TODO: switch back to `main` after merge
         accept_hostkey: yes
       when: not repo_folder_stat.stat.exists
