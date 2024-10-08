@@ -27,11 +27,13 @@ cp inventory.ini.example inventory.ini
 
 replace the placeholder with the actual server information. Note that the server needs to be reachable from your local machine via ssh. On GCP, we can use the [project metadata](https://cloud.google.com/compute/docs/connect/add-ssh-keys#add_ssh_keys_to_project_metadata) toadd our public SSH keys to to access all VMs in a project.
 
-3. Make sure all team members' public ssh keys are added to the playbook
+3. Setup SSH
 
-check the "Set up authorized keys for shared user" section in the playbook
+Make sure all team members' public ssh keys are added to the playbook. Check the "Set up authorized keys for shared user" section in the playbook.
 
-4. Run the playbook
+This may require registering your public SSH keys on cloud console (e.g. under `VM -> Metadata -> SSH Keys` for GCP).
+
+1. Run the playbook
 
 ```bash
 ansible-playbook -i inventory.ini debian_server_setup_playbook.yml

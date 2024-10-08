@@ -9,7 +9,7 @@
   tasks:
     - name: Ensure required packages are installed
       apt:
-        name: 
+        name:
           - build-essential
           - ca-certificates
           - curl
@@ -18,12 +18,21 @@
         state: present
         update_cache: yes
 
-    # TODO: this steps is not idempotent
-    - name: Create shared user
-      user:
+    - name: Ensure shared user exists and create it if not
+      ansible.builtin.user:
         name: "{{ shared_user }}"
         groups: "{{ sudo_group }}"
+        append: yes
         shell: /bin/zsh
+        state: present
+
+    - name: Ensure shared user has passwordless sudo
+      lineinfile:
+        path: /etc/sudoers
+        regexp: "^{{ shared_user }} "
+        line: "{{ shared_user }} ALL=(ALL) NOPASSWD:ALL"
+        state: present
+        validate: "visudo -cf %s"
 
     - name: Set up authorized keys for shared user
       authorized_key:
@@ -37,8 +46,8 @@
     - name: Disable password authentication
       lineinfile:
         path: /etc/ssh/sshd_config
-        regexp: '^PasswordAuthentication'
-        line: 'PasswordAuthentication no'
+        regexp: "^PasswordAuthentication"
+        line: "PasswordAuthentication no"
       notify: Restart SSH
 
     - name: Install Oh My Zsh
@@ -46,25 +55,61 @@
         cmd: sudo -u {{ shared_user }} sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
         creates: "/home/{{ shared_user }}/.oh-my-zsh"
 
+    - name: Install Powerlevel10k theme
+      ansible.builtin.git:
+        repo: "https://github.com/romkatv/powerlevel10k.git"
+        dest: "/home/{{ shared_user }}/.oh-my-zsh/custom/themes/powerlevel10k"
+        version: master
+        update: no
+
+    - name: Set Powerlevel10k theme in .zshrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{ shared_user }}/.zshrc"
+        regexp: "^ZSH_THEME="
+        line: 'ZSH_THEME="powerlevel10k/powerlevel10k"'
+
+    - name: Copy Powerlevel10k config
+      copy:
+        src: "{{ playbook_dir }}/.p10k.zsh"
+        dest: "/home/{{ shared_user }}/.p10k.zsh"
+        owner: "{{ shared_user }}"
+        group: "{{ shared_user }}"
+        mode: "0644"
+
+    - name: Ensure Powerlevel10k is sourced in .zshrc
+      lineinfile:
+        path: "/home/{{ shared_user }}/.zshrc"
+        create: yes
+        regexp: "^[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh"
+        line: "[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh"
+        owner: "{{ shared_user }}"
+        group: "{{ shared_user }}"
+        mode: "0644"
+
+    - name: Ensure mouse support is enabled in Vim
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_env.HOME }}/.vimrc"
+        line: "set mouse=a"
+        state: present
+        create: yes
+
     - name: Create Docker GPG keyring directory
       file:
         path: /etc/apt/keyrings
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Add Docker's official GPG key
       ansible.builtin.get_url:
         url: https://download.docker.com/linux/debian/gpg
         dest: /etc/apt/keyrings/docker.asc
-        mode: '0644'
+        mode: "0644"
 
-    # TODO: this steps is not idempotent
     - name: Add Docker repository
-      ansible.builtin.shell: |
-        echo \
-        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
-        $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-        tee /etc/apt/sources.list.d/docker.list > /dev/null
+      ansible.builtin.shell:
+        cmd: |
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+        creates: /etc/apt/sources.list.d/docker.list
 
     - name: Install Docker
       apt:
@@ -77,12 +122,12 @@
         state: present
         update_cache: yes
 
-    # TODO: this steps is not idempotent
-    - name: Add snapchain user to docker group
-      user:
+    - name: Add Snapchain user to Docker group
+      ansible.builtin.user:
         name: "{{ shared_user }}"
         groups: docker
         append: yes
+        state: present
 
   handlers:
     - name: Restart SSH
