@@ -64,6 +64,18 @@
       copy:
         src: "{{ playbook_dir }}/.p10k.zsh"
         dest: "/home/{{ shared_user }}/.p10k.zsh"
+        owner: "{{ shared_user }}"
+        group: "{{ shared_user }}"
+        mode: "0644"
+
+    - name: Ensure Powerlevel10k is sourced in .zshrc
+      lineinfile:
+        path: "/home/{{ shared_user }}/.zshrc"
+        create: yes
+        regexp: "^[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh"
+        line: "[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh"
+        owner: "{{ shared_user }}"
+        group: "{{ shared_user }}"
         mode: "0644"
 
     - name: Create Docker GPG keyring directory
