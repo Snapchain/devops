@@ -54,13 +54,17 @@
         version: master
         update: no
 
-    # TODO: on initial startup it starts an interactive prompt which is a bit annoying.
-    # we can probably hard code the settings file and set it directly to skip this step
     - name: Set Powerlevel10k theme in .zshrc
       ansible.builtin.lineinfile:
         path: "/home/{{ shared_user }}/.zshrc"
         regexp: "^ZSH_THEME="
         line: 'ZSH_THEME="powerlevel10k/powerlevel10k"'
+
+    - name: Copy Powerlevel10k config
+      copy:
+        src: "{{ playbook_dir }}/.p10k.zsh"
+        dest: "/home/{{ shared_user }}/.p10k.zsh"
+        mode: "0644"
 
     - name: Create Docker GPG keyring directory
       file:
