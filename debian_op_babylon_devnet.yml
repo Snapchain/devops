@@ -4,6 +4,7 @@
 - name: Setup the server for the op-babylon devnet
   hosts: all
   become: yes
+  become_flags: -E
 
   vars:
     # TODO: this Go version requirement is external dependency. we should figure
@@ -95,12 +96,22 @@
         path: "/home/{{ shared_user }}/.zshrc"
         line: 'eval "$(direnv hook zsh)"'
 
-    # TODO: this step failed with "Failed to set permissions on the temporary files Ansible needs to
-    # create when becoming an unprivileged user"
-    # - name: Clone Babylon integration deployment repository
-    #   ansible.builtin.git:
-    #     repo: 'git@github.com:babylonlabs-io/babylon-integration-deployment.git'
-    #     dest: '/home/{{ shared_user }}/babylon-integration-deployment'
-    #     version: main
-    #     accept_hostkey: yes
-    #   become_user: "{{ shared_user }}"
+    - name: enable SSH forwarding
+      lineinfile:
+        dest: /etc/sudoers
+        insertafter: '^#?\s*Defaults\s+env_keep\b'
+        line: 'Defaults    env_keep += "SSH_AUTH_SOCK"'
+        state: present
+
+    - name: Check if repository folder exists
+      ansible.builtin.stat:
+        path: "/home/{{ shared_user }}/babylon-integration-deployment-test"
+      register: repo_folder_stat
+
+    - name: Clone Babylon integration deployment repository
+      ansible.builtin.git:
+        repo: "git@github.com:babylonlabs-io/babylon-integration-deployment.git"
+        dest: "/home/{{ shared_user }}/babylon-integration-deployment-test"
+        version: feat/start-l2-sepolia # TODO: switch back to `main` after merge
+        accept_hostkey: yes
+      when: not repo_folder_stat.stat.exists
