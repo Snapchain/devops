@@ -86,6 +86,12 @@
           - netcat-openbsd
         state: present
 
+    - name: Install just
+      ansible.builtin.shell: |
+        curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+      args:
+        creates: /usr/local/bin/just
+
     - name: Install direnv
       ansible.builtin.apt:
         name: direnv
@@ -115,3 +121,13 @@
         version: feat/start-l2-sepolia # TODO: switch back to `main` after merge
         accept_hostkey: yes
       when: not repo_folder_stat.stat.exists
+
+    # TODO: this fixes the unsafe directory error (wip)
+    # fatal: [34.135.126.163]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:snapchain:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.17/playbook_guide/playbooks_privilege_escalation.html#risks-of-becoming-an-unprivileged-user"}
+    # - name: Set safe directory for git
+    #   ansible.builtin.shell: |
+    #     git config --global --add safe.directory /home/{{ shared_user }}/babylon-integration-deployment
+    #   args:
+    #     executable: /bin/bash
+    #   become: yes
+    #   become_user: "{{ shared_user }}"
