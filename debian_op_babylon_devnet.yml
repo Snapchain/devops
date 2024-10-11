@@ -140,3 +140,18 @@
     #     executable: /bin/bash
     #   become: yes
     #   become_user: "{{ shared_user }}"
+
+    - name: Add Kurtosis repository
+      ansible.builtin.apt_repository:
+        repo: deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /
+        state: present
+        filename: kurtosis
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install kurtosis-cli
+      ansible.builtin.apt:
+        name: kurtosis-cli
+        state: present
