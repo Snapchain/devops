@@ -9,6 +9,12 @@ This repo contains the ansible playbooks for setting up all our remote servers.
 - installs and configures powerlevel10k theme
 - installs and sets up docker
 
+`debian_op_babylon_devnet.yml`
+- runs the base server setup playbook `debian_server_setup_playbook.yml`
+- installs Go, Node.js, pnpm, just, foundry, jq, yq, nc
+- installs Kurtosis
+- clones the op-chain-deployment repository and copies the `.env` and `network_params.yaml` files
+
 Ansible is used because:
 
 1. it's idempotent, making it easier to modify the server setup and safe to run multiple times.

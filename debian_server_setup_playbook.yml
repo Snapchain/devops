@@ -76,6 +76,7 @@
         group: "{{ shared_user }}"
         mode: "0644"
 
+    # TODO: this step is not idempotent
     - name: Ensure Powerlevel10k is sourced in .zshrc
       lineinfile:
         path: "/home/{{ shared_user }}/.zshrc"
