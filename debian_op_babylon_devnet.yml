@@ -49,6 +49,7 @@
       args:
         creates: "/home/{{ shared_user }}/.nvm/nvm.sh"
 
+    # TODO: this step is not idempotent
     - name: Add NVM to .zshrc
       ansible.builtin.blockinfile:
         path: "/home/{{ shared_user }}/.zshrc"
@@ -102,16 +103,7 @@
       args:
         creates: /usr/local/bin/just
 
-    - name: Install direnv
-      ansible.builtin.apt:
-        name: direnv
-        state: present
-
-    - name: Add direnv hook to .zshrc
-      ansible.builtin.lineinfile:
-        path: "/home/{{ shared_user }}/.zshrc"
-        line: 'eval "$(direnv hook zsh)"'
-
+    # Q: why is this needed?
     - name: enable SSH forwarding
       lineinfile:
         dest: /etc/sudoers
@@ -119,18 +111,27 @@
         line: 'Defaults    env_keep += "SSH_AUTH_SOCK"'
         state: present
 
-    - name: Check if repository folder exists
-      ansible.builtin.stat:
-        path: "/home/{{ shared_user }}/babylon-integration-deployment"
-      register: repo_folder_stat
-
-    - name: Clone Babylon integration deployment repository
+    # this already initializes the submodules
+    - name: Clone babylon OP devnet deployment repository
       ansible.builtin.git:
-        repo: "git@github.com:babylonlabs-io/babylon-integration-deployment.git"
-        dest: "/home/{{ shared_user }}/babylon-integration-deployment"
-        version: feat/start-l2-sepolia # TODO: switch back to `main` after merge
+        repo: "git@github.com:Snapchain/op-chain-deployment.git"
+        dest: "/home/{{ shared_user }}/op-chain-deployment"
+        version: chore/op-chain-script # TODO: switch back to `main` after merge
         accept_hostkey: yes
-      when: not repo_folder_stat.stat.exists
+
+    - name: Copy .env.example to .env
+      ansible.builtin.copy:
+        src: /home/{{ shared_user }}/op-chain-deployment/.env.example
+        dest: /home/{{ shared_user }}/op-chain-deployment/.env
+        remote_src: yes
+        force: no
+
+    - name: Copy network_params.yaml.example to network_params.yaml
+      ansible.builtin.copy:
+        src: "/home/{{ shared_user }}/op-chain-deployment/configs/network_params.yaml.example"
+        dest: "/home/{{ shared_user }}/op-chain-deployment/configs/network_params.yaml"
+        remote_src: yes
+        force: no
 
     # TODO: this fixes the unsafe directory error (wip)
     # fatal: [34.135.126.163]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:snapchain:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.17/playbook_guide/playbooks_privilege_escalation.html#risks-of-becoming-an-unprivileged-user"}
@@ -142,12 +143,14 @@
     #   become: yes
     #   become_user: "{{ shared_user }}"
 
+    # TODO: we don't need Kurtosis for L2 deployment. only local L1 needs it
     - name: Add Kurtosis repository
       ansible.builtin.apt_repository:
         repo: deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /
         state: present
         filename: kurtosis
 
+    # TODO: this step is not idempotent
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: yes
