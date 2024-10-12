@@ -92,6 +92,7 @@
       ansible.builtin.apt:
         name:
           - jq
+          - yq
           - netcat-openbsd
         state: present
 
