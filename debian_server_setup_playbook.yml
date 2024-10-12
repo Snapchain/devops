@@ -10,8 +10,8 @@
     - name: Ensure required packages are installed
       apt:
         name:
-          - build-essential
-          - ca-certificates
+          - build-essential # e.g. Make
+          - ca-certificates # needed for Docker
           - curl
           - git
           - zsh
@@ -85,13 +85,6 @@
         owner: "{{ shared_user }}"
         group: "{{ shared_user }}"
         mode: "0644"
-
-    - name: Ensure mouse support is enabled in Vim
-      ansible.builtin.lineinfile:
-        path: "{{ ansible_env.HOME }}/.vimrc"
-        line: "set mouse=a"
-        state: present
-        create: yes
 
     - name: Create Docker GPG keyring directory
       file:

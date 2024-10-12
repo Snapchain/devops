@@ -1,10 +1,13 @@
 # devops
 
-This repo contains the ansible playbooks for setting up all our remote servers. It:
+This repo contains the ansible playbooks for setting up all our remote servers.
 
+`debian_server_setup_playbook.yml`
 - sets up the server with a shared user `snapchain`
+- installs build-essential, ca-certificates, curl, git, zsh
 - installs oh-my-zsh
-- installs docker and git
+- installs and configures powerlevel10k theme
+- installs and sets up docker
 
 Ansible is used because:
 
