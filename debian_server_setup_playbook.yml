@@ -2,6 +2,7 @@
 - name: Setup snapchain user with Oh My Zsh and Docker on Debian
   hosts: all
   become: yes
+  become_flags: -E
   vars:
     shared_user: snapchain
     sudo_group: sudo
