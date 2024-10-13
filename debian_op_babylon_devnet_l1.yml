@@ -12,7 +12,6 @@
     # TODO: this Go version requirement is external dependency. we should figure
     # out a way to keep it in sync or use docker to decouple this
     shared_user: snapchain # Ensure this matches the base playbook
-    foundry_version: "d28a3377e52e6a4114a8cea2903c115b023279e8"
 
   tasks:
     - name: Install Foundryup
