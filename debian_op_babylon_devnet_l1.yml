@@ -22,17 +22,6 @@
         executable: /bin/zsh
         creates: /home/{{ shared_user }}/.foundry/bin/foundryup
 
-    - name: Set Foundry environment variables
-      ansible.builtin.lineinfile:
-        path: "/home/{{ shared_user }}/.zshrc"
-        line: "export PATH=$PATH:/home/{{ shared_user }}/.foundry/bin"
-        regexp: '^export PATH=.*/.foundry/bin'
-        state: present
-
-    - name: Add Foundry to PATH
-      ansible.builtin.set_fact:
-        ansible_env: "{{ ansible_env | combine({'PATH': ansible_env.PATH ~ ':/home/' ~ shared_user ~ '/.foundry/bin'}) }}"
-
     - name: Check whether the Foundry binaries exist
       stat:
         path: '{{ item }}'
