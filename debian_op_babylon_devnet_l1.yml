@@ -1,0 +1,105 @@
+---
+# - import_playbook: debian_server_setup_playbook.yml
+
+- name: Setup the server for the op-babylon devnet
+  hosts: all
+  become: yes
+  become_flags: -E
+
+  vars:
+    # TODO: this Go version requirement is external dependency. we should figure
+    # out a way to keep it in sync or use docker to decouple this
+    shared_user: snapchain # Ensure this matches the base playbook
+    foundry_version: "d28a3377e52e6a4114a8cea2903c115b023279e8"
+
+  tasks:
+    - name: Install Foundryup
+      ansible.builtin.shell: |
+        sudo -u {{ shared_user }} zsh -c 'curl -L https://foundry.paradigm.xyz | zsh'
+      args:
+        executable: /bin/zsh
+        creates: /home/{{ shared_user }}/.foundry/bin/foundryup
+
+    - name: Set Foundry environment variables
+      ansible.builtin.lineinfile:
+        path: "/home/{{ shared_user }}/.zshrc"
+        line: "export PATH=$PATH:/home/{{ shared_user }}/.foundry/bin"
+        regexp: '^export PATH=.*/.foundry/bin'
+        state: present
+
+    - name: Check whether the Foundry binaries exist
+      stat:
+        path: '{{ item }}'
+      loop:
+        - /home/{{ shared_user }}/.foundry/bin/forge
+        - /home/{{ shared_user }}/.foundry/bin/cast
+        - /home/{{ shared_user }}/.foundry/bin/anvil
+        - /home/{{ shared_user }}/.foundry/bin/chisel
+      register: foundry_binaries_stat
+
+    - name: Run Foundryup
+      ansible.builtin.shell: |
+        sudo -u {{ shared_user }} zsh -c 'foundryup'
+      args:
+        executable: /bin/zsh
+      when: foundry_binaries_stat.results | rejectattr('stat.exists') | list
+
+    - name: Breakpoint
+      ansible.builtin.pause:
+        prompt: "Breakpoint reached. Press ENTER to continue or Ctrl+C to abort."
+
+    - name: Install more dependencies
+      ansible.builtin.apt:
+        name:
+          - jq
+          - yq
+        state: present
+
+    # this already initializes the submodules
+    - name: Clone babylon OP devnet deployment repository
+      ansible.builtin.git:
+        repo: "git@github.com:Snapchain/op-chain-deployment.git"
+        dest: "/home/{{ shared_user }}/op-chain-deployment"
+        version: feat/l1 # TODO: switch back to `main` after merge
+        accept_hostkey: yes
+
+    # TODO: this fixes the unsafe directory error (wip)
+    # fatal: [34.135.126.163]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:snapchain:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.17/playbook_guide/playbooks_privilege_escalation.html#risks-of-becoming-an-unprivileged-user"}
+    # - name: Set safe directory for git
+    #   ansible.builtin.shell: |
+    #     git config --global --add safe.directory /home/{{ shared_user }}/babylon-integration-deployment
+    #   args:
+    #     executable: /bin/bash
+    #   become: yes
+    #   become_user: "{{ shared_user }}"
+
+    # TODO: we don't need Kurtosis for L2 deployment. only local L1 needs it
+    - name: Add Kurtosis repository
+      ansible.builtin.apt_repository:
+        repo: deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /
+        state: present
+        filename: kurtosis
+
+    # TODO: this step is not idempotent
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install kurtosis-cli
+      ansible.builtin.apt:
+        name: kurtosis-cli
+        state: present
+
+    - name: Verify L1
+      ansible.builtin.command:
+        cmd: make l1-verify
+        chdir: /home/{{ shared_user }}/op-chain-deployment
+      register: l1_verify_result
+      failed_when: false
+      changed_when: false
+
+    - name: Launch L1
+      ansible.builtin.command:
+        cmd: make l1-configure && make l1-launch
+        chdir: /home/{{ shared_user }}/op-chain-deployment
+      when: l1_verify_result.rc != 0
