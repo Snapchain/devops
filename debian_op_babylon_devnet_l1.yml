@@ -62,7 +62,7 @@
       ansible.builtin.git:
         repo: "git@github.com:Snapchain/op-chain-deployment.git"
         dest: "/home/{{ shared_user }}/op-chain-deployment"
-        version: feat/l1 # TODO: switch back to `main` after merge
+        version: main
         accept_hostkey: yes
 
     - name: Copy .env.example to .env
@@ -71,13 +71,6 @@
         dest: /home/{{ shared_user }}/op-chain-deployment/.env
         remote_src: yes
         force: no
-
-    # - name: Change Github directory ownership
-    #   ansible.builtin.file:
-    #     path: /home/{{ shared_user }}/op-chain-deployment
-    #     owner: "{{ shared_user }}"
-    #     group: "{{ shared_user }}"
-    #     recurse: yes
 
     # TODO: this fixes the unsafe directory error (wip)
     # fatal: [34.135.126.163]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:snapchain:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.17/playbook_guide/playbooks_privilege_escalation.html#risks-of-becoming-an-unprivileged-user"}
@@ -117,24 +110,8 @@
       failed_when: false
       changed_when: false
 
-    - name: Breakpoint
-      ansible.builtin.pause:
-        prompt: "Press Enter to continue"
-
-    # - name: Test 
-    #   ansible.builtin.shell: |
-    #     echo "Current PATH: $PATH"
-    #     which cast
-    #     cast wallet new
-    #   # args:
-    #   #   executable: /bin/zsh
-    #   # become_user: "{{ shared_user }}"
-
     - name: Launch L1
       ansible.builtin.shell:
         cmd: make l1-configure && make l1-launch
         chdir: /home/{{ shared_user }}/op-chain-deployment
-      # args:
-      #   executable: /bin/zsh
-      # become_user: "{{ shared_user }}"
       when: l1_verify_result.rc != 0
