@@ -1,5 +1,5 @@
 ---
-# - import_playbook: debian_server_setup_playbook.yml
+- import_playbook: debian_server_setup_playbook.yml
 
 - name: Setup the server for the op-babylon devnet
   hosts: all
@@ -43,10 +43,6 @@
       args:
         executable: /bin/zsh
       when: foundry_binaries_stat.results | rejectattr('stat.exists') | list
-
-    - name: Breakpoint
-      ansible.builtin.pause:
-        prompt: "Breakpoint reached. Press ENTER to continue or Ctrl+C to abort."
 
     - name: Install more dependencies
       ansible.builtin.apt:
