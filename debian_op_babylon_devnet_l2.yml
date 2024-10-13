@@ -116,20 +116,12 @@
       ansible.builtin.git:
         repo: "git@github.com:Snapchain/op-chain-deployment.git"
         dest: "/home/{{ shared_user }}/op-chain-deployment"
-        version: chore/op-chain-script # TODO: switch back to `main` after merge
         accept_hostkey: yes
 
     - name: Copy .env.example to .env
       ansible.builtin.copy:
         src: /home/{{ shared_user }}/op-chain-deployment/.env.example
         dest: /home/{{ shared_user }}/op-chain-deployment/.env
-        remote_src: yes
-        force: no
-
-    - name: Copy network_params.yaml.example to network_params.yaml
-      ansible.builtin.copy:
-        src: "/home/{{ shared_user }}/op-chain-deployment/configs/network_params.yaml.example"
-        dest: "/home/{{ shared_user }}/op-chain-deployment/configs/network_params.yaml"
         remote_src: yes
         force: no
 
@@ -142,20 +134,3 @@
     #     executable: /bin/bash
     #   become: yes
     #   become_user: "{{ shared_user }}"
-
-    # TODO: we don't need Kurtosis for L2 deployment. only local L1 needs it
-    - name: Add Kurtosis repository
-      ansible.builtin.apt_repository:
-        repo: deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /
-        state: present
-        filename: kurtosis
-
-    # TODO: this step is not idempotent
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: yes
-
-    - name: Install kurtosis-cli
-      ansible.builtin.apt:
-        name: kurtosis-cli
-        state: present

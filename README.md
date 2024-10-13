@@ -9,11 +9,15 @@ This repo contains the ansible playbooks for setting up all our remote servers.
 - installs and configures powerlevel10k theme
 - installs and sets up docker
 
-`debian_op_babylon_devnet.yml`
+`debian_op_babylon_devnet_l2.yml`
 - runs the base server setup playbook `debian_server_setup_playbook.yml`
 - installs Go, Node.js, pnpm, just, foundry, jq, yq, nc
+- clones the op-chain-deployment repository and copies the `.env` file
+
+`debian_op_babylon_devnet_l1.yml`
+- runs the base server setup playbook `debian_server_setup_playbook.yml`
+- installs jq, yq
 - installs Kurtosis
-- clones the op-chain-deployment repository and copies the `.env` and `network_params.yaml` files
 
 Ansible is used because:
 
@@ -28,10 +32,12 @@ Ansible is used because:
 brew install ansible
 ```
 
-2. Configure the `inventory.ini` file
+2. Configure the `inventory.ini` files
 
+Example:
 ```bash
-cp inventory.ini.example inventory.ini
+cp inventory.ini.example l1.ini
+cp inventory.ini.example l2.ini
 ```
 
 replace the placeholder with the actual server information. Note that the server needs to be reachable from your local machine via ssh. On GCP, we can use the [project metadata](https://cloud.google.com/compute/docs/connect/add-ssh-keys#add_ssh_keys_to_project_metadata) toadd our public SSH keys to to access all VMs in a project.
@@ -42,10 +48,12 @@ Make sure all team members' public ssh keys are added to the playbook. Check the
 
 This may require registering your public SSH keys on cloud console (e.g. under `VM -> Metadata -> SSH Keys` for GCP).
 
-1. Run the playbook
+4. Run the playbook
 
+Example:
 ```bash
-ansible-playbook -i inventory.ini debian_server_setup_playbook.yml
+ansible-playbook -i l1.ini debian_op_babylon_devnet_l1.yml
+ansible-playbook -i l2.ini debian_op_babylon_devnet_l2.yml
 ```
 
 5. Test the setup
