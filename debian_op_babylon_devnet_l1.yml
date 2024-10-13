@@ -95,7 +95,7 @@
       changed_when: false
 
     - name: Launch L1
-      ansible.builtin.command:
+      ansible.builtin.shell:
         cmd: make l1-configure && make l1-launch
         chdir: /home/{{ shared_user }}/op-chain-deployment
       when: l1_verify_result.rc != 0
