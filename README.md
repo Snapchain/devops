@@ -92,10 +92,9 @@ L1_CHAIN_ID=<l1-chain-id>
 L1_FUNDED_PRIVATE_KEY=<l1-pre-funded-account-private-key>
 ```
 
-Note: you can read thoes values by ssh'ing into the L1 server and find in `/home/snapchain/op-chain-deployment/configs`
-
-- run `make l2-gen-addresses` to generate and fund the 3 addresses for the L2
-- `make start-op-chain-sepolia`
+Note:
+- you can read thoes values by ssh'ing into the L1 server and find in `/home/snapchain/op-chain-deployment/configs`
+- you migth need to run `sudo chown -R snapchain:snapchain /home/snapchain/op-chain-deployment` if you get permission errors
 
 then run:
 ```
