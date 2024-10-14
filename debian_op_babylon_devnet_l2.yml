@@ -76,29 +76,20 @@
       args:
         executable: /bin/bash
 
-    - name: Install Foundryup
+    - name: Create Foundry directory
+      ansible.builtin.file:
+        path: "/home/{{ shared_user }}/.foundry/bin"
+        state: directory
+        owner: "{{ shared_user }}"
+        group: "{{ shared_user }}"
+        mode: '0755'
+
+    - name: Install Foundry
       ansible.builtin.shell: |
-        sudo -u {{ shared_user }} zsh -c 'curl -L https://foundry.paradigm.xyz | zsh'
+        curl -L https://github.com/foundry-rs/foundry/releases/download/nightly-{{ foundry_version }}/foundry_nightly_linux_amd64.tar.gz | sudo -u {{ shared_user }} tar xvzf - -C /home/{{ shared_user }}/.foundry/bin
       args:
         executable: /bin/zsh
-        creates: /home/{{ shared_user }}/.foundry/bin/foundryup
-
-    - name: Check whether the Foundry binaries exist
-      stat:
-        path: '{{ item }}'
-      loop:
-        - /home/{{ shared_user }}/.foundry/bin/forge
-        - /home/{{ shared_user }}/.foundry/bin/cast
-        - /home/{{ shared_user }}/.foundry/bin/anvil
-        - /home/{{ shared_user }}/.foundry/bin/chisel
-      register: foundry_binaries_stat
-
-    - name: Run Foundryup
-      ansible.builtin.shell: |
-        sudo -u {{ shared_user }} zsh -c 'foundryup -C {{ foundry_version }}'
-      args:
-        executable: /bin/zsh
-      when: foundry_binaries_stat.results | rejectattr('stat.exists') | list
+        creates: /home/{{ shared_user }}/.foundry/bin/forge
 
     - name: Install more dependencies
       ansible.builtin.apt:
