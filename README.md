@@ -3,21 +3,24 @@
 This repo contains the ansible playbooks for setting up all our remote servers.
 
 `debian_server_setup_playbook.yml`
+- installs build-essential, ca-certificates, curl, git, zsh, acl
 - sets up the server with a shared user `snapchain`
-- installs build-essential, ca-certificates, curl, git, zsh
+- sets up authorized keys for the shared user
 - installs oh-my-zsh
 - installs and configures powerlevel10k theme
 - installs and sets up docker
 
+`debian_op_babylon_devnet_l1.yml`
+- runs the base server setup playbook `debian_server_setup_playbook.yml`
+- installs foundry, jq, yq
+- installs Kurtosis
+- clones the Snapchain/op-chain-deployment repo
+- starts a private L1 network with Kurtosis
+
 `debian_op_babylon_devnet_l2.yml`
 - runs the base server setup playbook `debian_server_setup_playbook.yml`
 - installs Go, Node.js, pnpm, just, foundry, jq, yq, nc
-- clones the op-chain-deployment repository and copies the `.env` file
-
-`debian_op_babylon_devnet_l1.yml`
-- runs the base server setup playbook `debian_server_setup_playbook.yml`
-- installs jq, yq
-- installs Kurtosis
+- clones the Snapchain/op-chain-deployment repo
 
 Ansible is used because:
 
@@ -40,32 +43,14 @@ cp inventory.ini.example l1.ini
 cp inventory.ini.example l2.ini
 ```
 
-replace the placeholder with the actual server information. Note that the server needs to be reachable from your local machine via ssh. On GCP, we can use the [project metadata](https://cloud.google.com/compute/docs/connect/add-ssh-keys#add_ssh_keys_to_project_metadata) toadd our public SSH keys to to access all VMs in a project.
+replace the placeholder with the actual server information. Note that the server needs to be reachable from your local machine via ssh. On GCP, we can use the [project metadata](https://cloud.google.com/compute/docs/connect/add-ssh-keys#add_ssh_keys_to_project_metadata) to add our public SSH keys to to access all VMs in a project.
 
-3. Setup SSH
+3. Configure SSH
 
-Make sure all team members' public ssh keys are added to the playbook. Check the "Set up authorized keys for shared user" section in the playbook.
-
-This may require registering your public SSH keys on cloud console (e.g. under `VM -> Metadata -> SSH Keys` for GCP).
-
-4. Run the playbook
-
-Example:
-```bash
-ansible-playbook -i l1.ini debian_op_babylon_devnet_l1.yml
-ansible-playbook -i l2.ini debian_op_babylon_devnet_l2.yml
-```
-
-5. Test the setup
-
-```bash
-ssh -i <path-to-private-ssh-key> snapchain@<server-ip>
-```
-
-You can also config your `~/.ssh/config` to directly ssh into the server by adding a `Host <hostname>` block.
+You `~/.ssh/config` should include L1 and L2 like this:
 
 ```
-Host my-server
+Host <hostname>
     HostName <server-ip>
     User snapchain
     IdentityFile /path/to/private/ssh-key
@@ -75,7 +60,53 @@ Host my-server
     ForwardAgent=yes
 ```
 
-and then ssh into the server with `ssh my-server`
+Make sure all team members' public ssh keys are added to the playbook. Check the "Set up authorized keys for shared user" section in the playbook.
+
+This may require registering your public SSH keys on cloud console (e.g. under `VM -> Metadata -> SSH Keys` for GCP).
+
+4. Start L1
+
+```bash
+ansible-playbook -i l1.ini debian_op_babylon_devnet_l1.yml
+```
+
+once it's up you can test with:
+```
+cast block latest --rpc-url http://<l1-server-ip>:18545
+```
+
+5. Start L2
+
+```bash
+ansible-playbook -i l2.ini debian_op_babylon_devnet_l2.yml
+```
+
+once it's up, ssh into the server with `ssh <l2-server-hostname>` and:
+
+- `cd /home/snapchain/op-chain-deployment`
+- modify `.env` to set L1 URLs, chain ID and the pre-funded account priv key
+```
+L1_RPC_URL=http://<l1-server-ip>:18545
+L1_BEACON_URL=http://<l1-server-ip>:15052
+L1_CHAIN_ID=<l1-chain-id>
+L1_FUNDED_PRIVATE_KEY=<l1-pre-funded-account-private-key>
+```
+
+Note: you can read thoes values by ssh'ing into the L1 server and find in `/home/snapchain/op-chain-deployment/configs`
+
+- run `make l2-gen-addresses` to generate and fund the 3 addresses for the L2
+- `make start-op-chain-sepolia`
+
+then run:
+```
+make l2-gen-addresses # generate and fund the 3 addresses for the L2
+make start-op-chain # start the L2
+```
+
+after it's up, you can test with:
+```
+make verify-op-devnet
+```
 
 ## Notes
 
