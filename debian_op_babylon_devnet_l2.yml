@@ -5,6 +5,8 @@
   hosts: all
   become: yes
   become_flags: -E
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/home/{{ shared_user }}/.foundry/bin"
 
   vars:
     # TODO: this Go version requirement is external dependency. we should figure

@@ -12,7 +12,6 @@
     # TODO: this Go version requirement is external dependency. we should figure
     # out a way to keep it in sync or use docker to decouple this
     shared_user: snapchain # Ensure this matches the base playbook
-    foundry_version: "d28a3377e52e6a4114a8cea2903c115b023279e8"
 
   tasks:
     - name: Install Foundryup
@@ -21,17 +20,6 @@
       args:
         executable: /bin/zsh
         creates: /home/{{ shared_user }}/.foundry/bin/foundryup
-
-    - name: Set Foundry environment variables
-      ansible.builtin.lineinfile:
-        path: "/home/{{ shared_user }}/.zshrc"
-        line: "export PATH=$PATH:/home/{{ shared_user }}/.foundry/bin"
-        regexp: '^export PATH=.*/.foundry/bin'
-        state: present
-
-    - name: Add Foundry to PATH
-      ansible.builtin.set_fact:
-        ansible_env: "{{ ansible_env | combine({'PATH': ansible_env.PATH ~ ':/home/' ~ shared_user ~ '/.foundry/bin'}) }}"
 
     - name: Check whether the Foundry binaries exist
       stat:
