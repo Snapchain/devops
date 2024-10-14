@@ -105,7 +105,8 @@ make start-op-chain # start the L2
 
 after it's up, you can test with:
 ```
-make verify-op-devnet
+make verify-op-devnet # on the L2 server
+cast block latest --rpc-url http://<l2-server-ip>:9545 # from anywhere
 ```
 
 ## Notes
