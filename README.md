@@ -84,6 +84,7 @@ ansible-playbook -i l2.ini debian_op_babylon_devnet_l2.yml
 once it's up, ssh into the server with `ssh <l2-server-hostname>` and:
 
 - `cd /home/snapchain/op-chain-deployment`
+- run `git config --global --add safe.directory /home/{{ shared_user }}/babylon-integration-deployment`
 - modify `.env` to set L1 URLs, chain ID and the pre-funded account priv key
 ```
 L1_RPC_URL=http://<l1-server-ip>:18545
