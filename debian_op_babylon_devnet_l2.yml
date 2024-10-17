@@ -147,24 +147,24 @@
         force: no
 
     - name: Update .env file with custom values
-      ansible.builtin.lineinfile:
+      ansible.builtin.replace:
         path: /home/{{ shared_user }}/op-chain-deployment/.env
         regexp: "{{ item.regexp }}"
-        line: "{{ item.line }}"
+        replace: "{{ item.replace }}"
       loop:
-        - { regexp: '^L1_RPC_URL=', line: 'L1_RPC_URL=http://{{ l1_server_ip }}:18545' }
-        - { regexp: '^L1_BEACON_URL=', line: 'L1_BEACON_URL=http://{{ l1_server_ip }}:15052' }
-        - { regexp: '^L1_CHAIN_ID=', line: 'L1_CHAIN_ID={{ l1_chain_id }}' }
-        - { regexp: '^L1_FUNDED_PRIVATE_KEY=', line: 'L1_FUNDED_PRIVATE_KEY={{ l1_pre_funded_account_private_key }}' }
+        - { regexp: '^L1_RPC_URL=.*', replace: 'L1_RPC_URL=http://{{ l1_server_ip }}:18545' }
+        - { regexp: '^L1_BEACON_URL=.*', replace: 'L1_BEACON_URL=http://{{ l1_server_ip }}:15052' }
+        - { regexp: '^L1_CHAIN_ID=.*', replace: 'L1_CHAIN_ID={{ l1_chain_id }}' }
+        - { regexp: '^L1_FUNDED_PRIVATE_KEY=.*', replace: 'L1_FUNDED_PRIVATE_KEY={{ l1_pre_funded_account_private_key }}' }
 
     - name: Update .env.explorer file with custom values
-      ansible.builtin.lineinfile:
+      ansible.builtin.replace:
         path: /home/{{ shared_user }}/op-chain-deployment/.env.explorer
         regexp: "{{ item.regexp }}"
-        line: "{{ item.line }}"
+        replace: "{{ item.replace }}"
       loop:
-        - { regexp: '^L2_RPC_URL=', line: 'L2_RPC_URL=http://{{ l2_server_ip }}:9545' }
-        - { regexp: '^COMMON_HOST=', line: 'COMMON_HOST={{ l2_server_ip }}' }
+        - { regexp: '^L2_RPC_URL=.*', replace: 'L2_RPC_URL=http://{{ l2_server_ip }}:9545' }
+        - { regexp: '^COMMON_HOST=.*', replace: 'COMMON_HOST={{ l2_server_ip }}' }
 
     - name: Verify L2
       ansible.builtin.shell:
