@@ -7,8 +7,6 @@
   become_flags: -E
 
   vars:
-    # TODO: this Go version requirement is external dependency. we should figure
-    # out a way to keep it in sync or use docker to decouple this
     shared_user: snapchain # Ensure this matches the base playbook
 
   tasks:
