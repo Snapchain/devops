@@ -4,5 +4,5 @@
 [gcp_vm:vars]
 l1_server_ip=<l1-server-ip>
 l1_chain_id=<l1-chain-id>
-l1_pre_funded_account_private_key=<l1-pre-funded-account-private-key>
+l1_pre_funded_account_private_key="0xe169d67d83aef11622914a7c6e0d18e3a5f95f57b76ffc24feda87ace7101083"
 l2_server_ip=<l2-server-ip>
