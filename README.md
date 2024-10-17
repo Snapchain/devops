@@ -75,6 +75,12 @@ once it's up you can test with:
 cast block latest --rpc-url http://<l1-server-ip>:18545
 ```
 
+Then ssh into the L1 server and find:
+- the L1 chain ID in `~/op-chain-deployment/configs/network_params.yaml`
+- the pre-funded account private key in `~/op-chain-deployment/configs/l1-prefund-wallet.json`
+
+which you will need for the L2 playbook.
+
 5. Start L2
 
 ```bash
@@ -93,13 +99,9 @@ L1_CHAIN_ID=<l1-chain-id>
 L1_FUNDED_PRIVATE_KEY=<l1-pre-funded-account-private-key>
 ```
 
-Note:
-- you can read thoes values by ssh'ing into the L1 server and find in `/home/snapchain/op-chain-deployment/configs`
-
 then run:
 ```
-make l2-gen-addresses # generate and fund the 3 addresses for the L2
-make start-op-chain # start the L2
+make l2-launch
 ```
 
 after it's up, you can test with:
@@ -107,6 +109,8 @@ after it's up, you can test with:
 make verify-op-devnet # on the L2 server
 cast block latest --rpc-url http://<l2-server-ip>:9545 # from anywhere
 ```
+
+you can also access the bridge UI at http://<l2-server-ip>:3002/
 
 ## Notes
 
