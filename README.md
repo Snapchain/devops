@@ -76,7 +76,7 @@ cast block latest --rpc-url http://<l1-server-ip>:18545
 ```
 
 Then ssh into the L1 server and find:
-- the L1 chain ID in `~/op-chain-deployment/configs/network_params.yaml`
+- the L1 chain ID in `~/op-chain-deployment/configs/l1/network_params.yaml`
 - the pre-funded account private key in `~/op-chain-deployment/configs/l1-prefund-wallet.json`
 
 which you will need for the L2 playbook.
