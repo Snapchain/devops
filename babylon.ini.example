@@ -1,0 +1,10 @@
+[gcp_vm]
+35.194.11.47 ansible_user=satoshi ansible_ssh_private_key_file=/Users/satoshi/.ssh/google_compute_engine
+
+[gcp_vm:vars]
+btc_network=testnet
+bitcoin_rpc_port=18332
+wallet_pass=walletpass
+btcstaker_privkey=cTk9VLzMqWdAXxr8bFPZKvjQsgh3uCjfzXqPGRPuTsQFB1Xq3sFn
+slashing_pk_script=76a914010101010101010101010101010101010101010188ab
+consumer_id=706114

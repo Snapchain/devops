@@ -1,0 +1,41 @@
+---
+- import_playbook: debian_server_setup_playbook.yml
+
+- name: Setup the server for the babylon devnet
+  hosts: all
+  become: yes
+  become_flags: -E
+
+  vars:
+    # TODO: this Go version requirement is external dependency. we should figure
+    # out a way to keep it in sync or use docker to decouple this
+    shared_user: snapchain # Ensure this matches the base playbook
+
+  tasks:
+    # this already initializes the submodules
+    - name: Clone babylon OP devnet deployment repository
+      ansible.builtin.git:
+        repo: "git@github.com:babylonlabs-io/babylon-integration-deployment.git"
+        dest: "/home/{{ shared_user }}/babylon"
+        version: feat/fix-babylon-deployment
+        accept_hostkey: yes
+
+    - name: Copy .env.example to .env
+      ansible.builtin.copy:
+        src: /home/{{ shared_user }}/babylon/deployments/finality-gadget-integration-op-l2/.env.example
+        dest: /home/{{ shared_user }}/babylon/deployments/finality-gadget-integration-op-l2/.env
+        remote_src: yes
+        force: no
+
+    - name: Update .env file with custom values
+      ansible.builtin.replace:
+        path: /home/{{ shared_user }}/babylon/deployments/finality-gadget-integration-op-l2/.env
+        regexp: "{{ item.regexp }}"
+        replace: "{{ item.replace }}"
+      loop:
+        - { regexp: '^BITCOIN_NETWORK=.*', replace: 'BITCOIN_NETWORK={{ bitcoin_network }}' }
+        - { regexp: '^BITCOIN_RPC_PORT=.*', replace: 'BITCOIN_RPC_PORT={{ bitcoin_rpc_port }}' }
+        - { regexp: '^WALLET_PASS=.*', replace: 'WALLET_PASS={{ wallet_pass }}' }
+        - { regexp: '^BTCSTAKER_PRIVKEY=.*', replace: 'BTCSTAKER_PRIVKEY={{ btcstaker_privkey }}' }
+        - { regexp: '^SLASHING_PK_SCRIPT=.*', replace: 'SLASHING_PK_SCRIPT={{ slashing_pk_script }}' }
+        - { regexp: '^CONSUMER_ID=.*', replace: 'CONSUMER_ID={{ consumer_id }}' }
