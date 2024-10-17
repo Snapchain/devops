@@ -87,6 +87,10 @@ Now modify `l2.ini`'s `gcp_vm:vars` section with the L1 chain ID and the pre-fun
 ansible-playbook -i l2.ini debian_op_babylon_devnet_l2.yml
 ```
 
+once it's up, ssh into the server with `ssh <l2-server-hostname>` and:
+
+- run `cd /home/snapchain/op-chain-deployment && sudo chown -R snapchain:snapchain /home/snapchain/op-chain-deployment && make l2-launch`
+
 after it's up, you can test with:
 ```
 make verify-op-devnet # on the L2 server
