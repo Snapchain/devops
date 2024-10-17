@@ -97,7 +97,7 @@ make verify-op-devnet # on the L2 server
 cast block latest --rpc-url http://<l2-server-ip>:9545 # from anywhere
 ```
 
-you can also access the bridge UI at http://<l2-server-ip>:3002/
+you can also access the bridge UI at `http://<l2-server-ip>:3002/`
 
 ## Notes
 
