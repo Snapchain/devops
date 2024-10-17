@@ -1,7 +1,7 @@
 ---
 - import_playbook: debian_server_setup_playbook.yml
 
-- name: Setup the server for the op-babylon devnet
+- name: Setup the server for the op-babylon devnet L2
   hosts: all
   become: yes
   become_flags: -E
