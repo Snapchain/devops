@@ -91,6 +91,11 @@
         executable: /bin/zsh
         creates: /home/{{ shared_user }}/.foundry/bin/forge
 
+    - name: Add Foundry to PATH
+      ansible.builtin.lineinfile:
+        path: "/home/{{ shared_user }}/.zshrc"
+        line: "export PATH=$PATH:/home/{{ shared_user }}/.foundry/bin"
+
     - name: Install more dependencies
       ansible.builtin.apt:
         name:

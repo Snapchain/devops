@@ -38,6 +38,11 @@
         executable: /bin/zsh
       when: foundry_binaries_stat.results | rejectattr('stat.exists') | list
 
+    - name: Add Foundry to PATH
+      ansible.builtin.lineinfile:
+        path: "/home/{{ shared_user }}/.zshrc"
+        line: "export PATH=$PATH:/home/{{ shared_user }}/.foundry/bin"
+
     - name: Install more dependencies
       ansible.builtin.apt:
         name:
