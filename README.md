@@ -98,6 +98,11 @@ L1_BEACON_URL=http://<l1-server-ip>:15052
 L1_CHAIN_ID=<l1-chain-id>
 L1_FUNDED_PRIVATE_KEY=<l1-pre-funded-account-private-key>
 ```
+- modify `.env.explorer` to set L2 RPC URL and common host
+```
+L2_RPC_URL=http://<l2-server-ip>:9545
+COMMON_HOST=<l2-server-ip>
+```
 
 then run:
 ```
