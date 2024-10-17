@@ -146,6 +146,43 @@
         remote_src: yes
         force: no
 
+    - name: Update .env file with custom values
+      ansible.builtin.lineinfile:
+        path: /home/{{ shared_user }}/op-chain-deployment/.env
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - { regexp: '^L1_RPC_URL=', line: 'L1_RPC_URL=http://{{ l1_server_ip }}:18545' }
+        - { regexp: '^L1_BEACON_URL=', line: 'L1_BEACON_URL=http://{{ l1_server_ip }}:15052' }
+        - { regexp: '^L1_CHAIN_ID=', line: 'L1_CHAIN_ID={{ l1_chain_id }}' }
+        - { regexp: '^L1_FUNDED_PRIVATE_KEY=', line: 'L1_FUNDED_PRIVATE_KEY={{ l1_pre_funded_account_private_key }}' }
+
+    - name: Update .env.explorer file with custom values
+      ansible.builtin.lineinfile:
+        path: /home/{{ shared_user }}/op-chain-deployment/.env.explorer
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - { regexp: '^L2_RPC_URL=', line: 'L2_RPC_URL=http://{{ l2_server_ip }}:9545' }
+        - { regexp: '^COMMON_HOST=', line: 'COMMON_HOST={{ l2_server_ip }}' }
+
+    - name: Verify L2
+      ansible.builtin.shell:
+        cmd: make l2-verify
+        chdir: /home/{{ shared_user }}/op-chain-deployment
+      args:
+        executable: /bin/zsh
+      register: l2_verify_result
+      become_user: "{{ shared_user }}"
+      failed_when: false
+      changed_when: false
+
+    - name: Launch L2
+      ansible.builtin.shell:
+        cmd: make l2-launch
+        chdir: /home/{{ shared_user }}/op-chain-deployment
+      when: l2_verify_result.rc != 0
+
     # TODO: this fixes the unsafe directory error (wip)
     # fatal: [34.135.126.163]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:snapchain:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.17/playbook_guide/playbooks_privilege_escalation.html#risks-of-becoming-an-unprivileged-user"}
     # - name: Set safe directory for git
