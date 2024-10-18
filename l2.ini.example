@@ -1,0 +1,10 @@
+[gcp_vm]
+# <L2_SERVER_IP> ansible_user=<SERVER_USERNAME> ansible_ssh_private_key_file=<LOCAL_PATH_TO_SSH_KEY>
+123.456.78.90 ansible_user=satoshi ansible_ssh_private_key_file=/Users/satoshi/.ssh/google_compute_engine
+
+[gcp_vm:vars]
+l1_server_ip=34.567.89.12
+l2_server_ip=123.456.78.90
+l1_chain_id=70611411
+# must be filled with double quotes
+l1_pre_funded_account_private_key="0xe169d67d83aef11622914a7c6e0d18e3a5f95f57b76ffc24feda87ace7101083"
