@@ -51,7 +51,7 @@ Make sure your' public ssh keys are also added to the debian_server_setup_playbo
 
 4. Reserve VM on GCP and configure SSH
 
-You `~/.ssh/config` should include L1 and L2 like this:
+Your `~/.ssh/config` should include hosts like this:
 
 ```
 Host <hostname>
