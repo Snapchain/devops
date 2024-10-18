@@ -76,7 +76,7 @@ cp l2.ini.example l2.ini
 
 Under `[gcp_vm]`, replace the IP address with the L1 and L2 server IP addresses you reserved on GCP or other cloud provider. Replace `ansible_user` with your server username. Replace `ansible_ssh_private_key_file` with the **local** path to your ssh key.
 
-For `l2.ini`, under `[gcp_vm:vars]`, fill in the server IPs. The desired L1 chain ID and pre-funded account private key are retrieved from the L1 server (see steps below).
+For `l2.ini`, under `[gcp_vm:vars]`, fill in the server IPs, desired L2 chain ID, and reserved finality gadget RPC address. The L1 chain ID and pre-funded account private key are retrieved from the L1 server (see steps below).
 
 2. Start L1
 

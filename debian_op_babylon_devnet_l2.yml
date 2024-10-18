@@ -81,7 +81,7 @@
         state: directory
         owner: "{{ shared_user }}"
         group: "{{ shared_user }}"
-        mode: '0755'
+        mode: "0755"
 
     - name: Install Foundry
       ansible.builtin.shell: |
@@ -151,10 +151,30 @@
         regexp: "{{ item.regexp }}"
         replace: "{{ item.replace }}"
       loop:
-        - { regexp: '^L1_RPC_URL=.*', replace: 'L1_RPC_URL=http://{{ l1_server_ip }}:18545' }
-        - { regexp: '^L1_BEACON_URL=.*', replace: 'L1_BEACON_URL=http://{{ l1_server_ip }}:15052' }
-        - { regexp: '^L1_CHAIN_ID=.*', replace: 'L1_CHAIN_ID={{ l1_chain_id }}' }
-        - { regexp: '^L1_FUNDED_PRIVATE_KEY=.*', replace: 'L1_FUNDED_PRIVATE_KEY={{ l1_pre_funded_account_private_key }}' }
+        - {
+            regexp: "^L1_RPC_URL=.*",
+            replace: "L1_RPC_URL=http://{{ l1_server_ip }}:18545",
+          }
+        - {
+            regexp: "^L1_BEACON_URL=.*",
+            replace: "L1_BEACON_URL=http://{{ l1_server_ip }}:15052",
+          }
+        - {
+            regexp: "^L1_CHAIN_ID=.*",
+            replace: "L1_CHAIN_ID={{ l1_chain_id }}",
+          }
+        - {
+            regexp: "^L1_FUNDED_PRIVATE_KEY=.*",
+            replace: "L1_FUNDED_PRIVATE_KEY={{ l1_pre_funded_account_private_key }}",
+          }
+        - {
+            regexp: "^L2_CHAIN_ID=.*",
+            replace: "L2_CHAIN_ID={{ l2_chain_id }}",
+          }
+        - {
+            regexp: "^BBN_FINALITY_GADGET_RPC=.*",
+            replace: "BBN_FINALITY_GADGET_RPC={{ bbn_finality_gadget_rpc }}",
+          }
 
     - name: Update .env.explorer file with custom values
       ansible.builtin.replace:
@@ -162,8 +182,14 @@
         regexp: "{{ item.regexp }}"
         replace: "{{ item.replace }}"
       loop:
-        - { regexp: '^L2_RPC_URL=.*', replace: 'L2_RPC_URL=http://{{ l2_server_ip }}:9545' }
-        - { regexp: '^COMMON_HOST=.*', replace: 'COMMON_HOST={{ l2_server_ip }}' }
+        - {
+            regexp: "^L2_RPC_URL=.*",
+            replace: "L2_RPC_URL=http://{{ l2_server_ip }}:9545",
+          }
+        - {
+            regexp: "^COMMON_HOST=.*",
+            replace: "COMMON_HOST={{ l2_server_ip }}",
+          }
 
     # TODO: this fixes the unsafe directory error (wip)
     # fatal: [34.135.126.163]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:snapchain:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.17/playbook_guide/playbooks_privilege_escalation.html#risks-of-becoming-an-unprivileged-user"}
