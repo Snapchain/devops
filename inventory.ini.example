@@ -1,5 +1,5 @@
 [gcp_vm]
-34.30.22.33 ansible_user=satoshi ansible_ssh_private_key_file=/Users/satoshi/.ssh/google_compute_engine
+<server-ip> ansible_user=satoshi ansible_ssh_private_key_file=/Users/satoshi/.ssh/google_compute_engine
 
 [gcp_vm:vars]
 l1_server_ip=<l1-server-ip>
