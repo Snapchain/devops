@@ -138,3 +138,15 @@ sudo chown snapchain:snapchain -R ~/babylon && cd ~/babylon/deployments/finality
 ## Notes
 
 The playbook now only supports debian servers (default on GCP)
+
+## Troubleshooting
+
+1. If you ssh into the server before the playbook finishes running, you might see errors like:
+
+```
+cast: command not found
+```
+
+This is because the `PATH` environment variable is not updated when the playbook finishes running.
+
+To fix, run `omz reload` on the server once ansible finishes running.
