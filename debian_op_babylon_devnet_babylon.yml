@@ -10,6 +10,12 @@
     shared_user: snapchain # Ensure this matches the base playbook
 
   tasks:
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - jq
+        state: present
+
     # this already initializes the submodules
     - name: Clone babylon OP devnet deployment repository
       ansible.builtin.git:
