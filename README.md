@@ -79,7 +79,7 @@ replace the IP address with the one you reserved on GCP. add other required vari
 2. Start L1
 
 ```bash
-ansible-playbook -i l1.ini debian_op_babylon_devnet_l1.yml
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i l1.ini debian_op_babylon_devnet_l1.yml
 ```
 
 once it's up you can test with:
@@ -96,7 +96,7 @@ Now modify `l2.ini`'s `gcp_vm:vars` section with the L1 chain ID and the pre-fun
 4. Start L2
 
 ```bash
-ansible-playbook -i l2.ini debian_op_babylon_devnet_l2.yml
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i l2.ini debian_op_babylon_devnet_l2.yml
 ```
 
 once it's done, ssh into the server with `ssh <l2-server-hostname>` and:
@@ -124,7 +124,7 @@ replace the IP address with the one you reserved on GCP. add other required vari
 
 2. Start Babylon devnet and finality gadget
 ```bash
-ansible-playbook -i babylon.ini debian_op_devnet_babylon.yml
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i babylon.ini debian_op_devnet_babylon.yml
 ```
 
 once it's done, ssh into the server with `ssh <server-hostname>` and run:
