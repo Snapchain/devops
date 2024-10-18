@@ -4,7 +4,7 @@
 
 [gcp_vm:vars]
 # main | test | signet | regtest
-btc_network=signet
+bitcoin_network=signet
 # 8332 (main) | 18332 (test) | 38332 (signet) | 18443 (regtest)
 bitcoin_rpc_port=38332
 # bitcoind wallet password
