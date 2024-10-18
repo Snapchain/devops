@@ -20,11 +20,10 @@
     foundry_version: "d28a3377e52e6a4114a8cea2903c115b023279e8"
 
   tasks:
-    # TODO: this will fail if go is not installed
     - name: Check existing Go version
       ansible.builtin.command: /usr/local/go/bin/go version
       register: go_version_check
-      ignore_errors: yes
+      ignore_errors: yes # this will fail if go is not installed but expected
       changed_when: false
 
     - name: Remove existing Go installation if version mismatch
