@@ -66,15 +66,17 @@ Host <hostname>
 
 ## To start L1 and L2
 
-1. . Configure the inventory files
+1. Configure the inventory files
 
 Example:
 ```bash
-cp inventory.ini.example l1.ini
-cp inventory.ini.example l2.ini
+cp l1.ini.example l1.ini
+cp l2.ini.example l2.ini
 ```
 
-replace the IP address with the one you reserved on GCP. add other required variables.
+Under `[gcp_vm]`, replace the IP address with the L1 and L2 server IP addresses you reserved on GCP or other cloud provider. Replace `ansible_user` with your server username. Replace `ansible_ssh_private_key_file` with the **local** path to your ssh key.
+
+For `l2.ini`, under `[gcp_vm:vars]`, fill in the server IPs. The desired L1 chain ID and pre-funded account private key are retrieved from the L1 server (see steps below).
 
 2. Start L1
 
@@ -82,7 +84,7 @@ replace the IP address with the one you reserved on GCP. add other required vari
 ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i l1.ini debian_op_babylon_devnet_l1.yml
 ```
 
-once it's up you can test with:
+Once it's up you can test with:
 ```
 cast block latest --rpc-url http://<l1-server-ip>:18545
 ```
@@ -91,9 +93,9 @@ Then ssh into the L1 server and find:
 - the L1 chain ID in `~/op-chain-deployment/configs/l1/network_params.yaml`
 - the pre-funded account private key in `~/op-chain-deployment/configs/l1/l1-prefund-wallet.json`
 
-Now modify `l2.ini`'s `gcp_vm:vars` section with the L1 chain ID and the pre-funded account private key. Also fill in the L1 and L2 server IP.
+Now modify `l2.ini`'s `gcp_vm:vars` section with the L1 chain ID and the pre-funded account private key.
 
-4. Start L2
+3. Start L2
 
 ```bash
 ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i l2.ini debian_op_babylon_devnet_l2.yml
