@@ -79,7 +79,7 @@ Then ssh into the L1 server and find:
 - the L1 chain ID in `~/op-chain-deployment/configs/l1/network_params.yaml`
 - the pre-funded account private key in `~/op-chain-deployment/configs/l1/l1-prefund-wallet.json`
 
-which you will need for the L2 playbook.
+Now modify `l2.ini`'s `gcp_vm:vars` section with the L1 chain ID and the pre-funded account private key. Also fill in the L1 and L2 server IP.
 
 5. Start L2
 
@@ -89,25 +89,7 @@ ansible-playbook -i l2.ini debian_op_babylon_devnet_l2.yml
 
 once it's up, ssh into the server with `ssh <l2-server-hostname>` and:
 
-- `cd /home/snapchain/op-chain-deployment`
-- run `sudo chown -R snapchain:snapchain /home/snapchain/op-chain-deployment`
-- modify `.env` to set L1 URLs, chain ID and the pre-funded account priv key
-```
-L1_RPC_URL=http://<l1-server-ip>:18545
-L1_BEACON_URL=http://<l1-server-ip>:15052
-L1_CHAIN_ID=<l1-chain-id>
-L1_FUNDED_PRIVATE_KEY=<l1-pre-funded-account-private-key>
-```
-- modify `.env.explorer` to set L2 RPC URL and common host
-```
-L2_RPC_URL=http://<l2-server-ip>:9545
-COMMON_HOST=<l2-server-ip>
-```
-
-then run:
-```
-make l2-launch
-```
+- run `cd /home/snapchain/op-chain-deployment && sudo chown -R snapchain:snapchain /home/snapchain/op-chain-deployment && make l2-launch`
 
 after it's up, you can test with:
 ```
@@ -115,7 +97,7 @@ make verify-op-devnet # on the L2 server
 cast block latest --rpc-url http://<l2-server-ip>:9545 # from anywhere
 ```
 
-you can also access the bridge UI at http://<l2-server-ip>:3002/
+you can also access the bridge UI at `http://<l2-server-ip>:3002/`
 
 ## Notes
 

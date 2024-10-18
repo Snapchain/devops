@@ -1,7 +1,7 @@
 ---
 - import_playbook: debian_server_setup_playbook.yml
 
-- name: Setup the server for the op-babylon devnet
+- name: Setup the server for the op-babylon devnet L2
   hosts: all
   become: yes
   become_flags: -E
@@ -145,6 +145,26 @@
         dest: /home/{{ shared_user }}/op-chain-deployment/.env.bridge
         remote_src: yes
         force: no
+
+    - name: Update .env file with custom values
+      ansible.builtin.replace:
+        path: /home/{{ shared_user }}/op-chain-deployment/.env
+        regexp: "{{ item.regexp }}"
+        replace: "{{ item.replace }}"
+      loop:
+        - { regexp: '^L1_RPC_URL=.*', replace: 'L1_RPC_URL=http://{{ l1_server_ip }}:18545' }
+        - { regexp: '^L1_BEACON_URL=.*', replace: 'L1_BEACON_URL=http://{{ l1_server_ip }}:15052' }
+        - { regexp: '^L1_CHAIN_ID=.*', replace: 'L1_CHAIN_ID={{ l1_chain_id }}' }
+        - { regexp: '^L1_FUNDED_PRIVATE_KEY=.*', replace: 'L1_FUNDED_PRIVATE_KEY={{ l1_pre_funded_account_private_key }}' }
+
+    - name: Update .env.explorer file with custom values
+      ansible.builtin.replace:
+        path: /home/{{ shared_user }}/op-chain-deployment/.env.explorer
+        regexp: "{{ item.regexp }}"
+        replace: "{{ item.replace }}"
+      loop:
+        - { regexp: '^L2_RPC_URL=.*', replace: 'L2_RPC_URL=http://{{ l2_server_ip }}:9545' }
+        - { regexp: '^COMMON_HOST=.*', replace: 'COMMON_HOST={{ l2_server_ip }}' }
 
     # TODO: this fixes the unsafe directory error (wip)
     # fatal: [34.135.126.163]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:snapchain:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.17/playbook_guide/playbooks_privilege_escalation.html#risks-of-becoming-an-unprivileged-user"}
