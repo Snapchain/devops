@@ -3,9 +3,9 @@
 32.109.87.65 ansible_user=satoshi ansible_ssh_private_key_file=/Users/satoshi/.ssh/google_compute_engine
 
 [gcp_vm:vars]
-# main | test | signet | regtest
+# signet | regtest
 bitcoin_network=signet
-# 8332 (main) | 18332 (test) | 38332 (signet) | 18443 (regtest)
+# 38332 (signet) | 18443 (regtest)
 bitcoin_rpc_port=38332
 # bitcoind wallet password
 wallet_pass=walletpass
