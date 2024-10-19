@@ -16,13 +16,18 @@
           - jq
         state: present
 
-    # this already initializes the submodules
+    - name: Check if babylon repository exists
+      ansible.builtin.stat:
+        path: "/home/{{ shared_user }}/babylon"
+      register: babylon_repo
+
     - name: Clone babylon OP devnet deployment repository
       ansible.builtin.git:
         repo: "git@github.com:babylonlabs-io/babylon-integration-deployment.git"
         dest: "/home/{{ shared_user }}/babylon"
         version: feat/fix-babylon-deployment
         accept_hostkey: yes
+      when: not babylon_repo.stat.exists
 
     - name: Copy .env.example to .env
       ansible.builtin.copy:
