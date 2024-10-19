@@ -126,7 +126,7 @@ replace the IP address with the one you reserved on GCP. add other required vari
 
 2. Start Babylon devnet and finality gadget
 ```bash
-ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i babylon.ini debian_op_devnet_babylon.yml
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i babylon.ini debian_op_babylon_devnet_babylon.yml
 ```
 
 once it's done, ssh into the server with `ssh <server-hostname>` and run:
