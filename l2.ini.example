@@ -14,6 +14,7 @@ l1_chain_id=70611411
 # l2_chain_id=<L2_CHAIN_ID>
 l2_chain_id=706114
 # bbn_finality_gadget_rpc=<BABYLON_FINALITY_GADGET_RPC>
+# note: it's a gRPC URL without the scheme prefix
 bbn_finality_gadget_rpc=32.109.87.65:50051
 # l1_pre_funded_account_private_key="<L1_PREFUNDED_PRIVATE_KEY>"
 # note: must be filled with double quotes to avoid errors
