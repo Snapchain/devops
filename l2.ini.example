@@ -3,13 +3,15 @@
 123.456.78.90 ansible_user=satoshi ansible_ssh_private_key_file=/Users/satoshi/.ssh/google_compute_engine
 
 [gcp_vm:vars]
-# l1_server_ip=<L1_SERVER_IP>
-l1_server_ip=34.567.89.12
+# l1_rpc_url=<L1_RPC_URL>
+l1_rpc_url=http://34.567.89.12:8545
+# l1_beacon_rpc_url=<L1_BEACON_RPC_URL>
+l1_beacon_rpc_url=http://34.567.89.12:5052
 # l2_server_ip=<L2_SERVER_IP>
 l2_server_ip=123.456.78.90
-# l1_server_ip=<L1_CHAIN_ID>
+# l1_chain_id=<L1_CHAIN_ID>
 l1_chain_id=70611411
-# l2_server_ip=<L2_CHAIN_ID>
+# l2_chain_id=<L2_CHAIN_ID>
 l2_chain_id=706114
 # bbn_finality_gadget_rpc=<BABYLON_FINALITY_GADGET_RPC>
 bbn_finality_gadget_rpc=http://32.109.87.65:50051

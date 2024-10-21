@@ -153,11 +153,11 @@
       loop:
         - {
             regexp: "^L1_RPC_URL=.*",
-            replace: "L1_RPC_URL=http://{{ l1_server_ip }}:18545",
+            replace: "L1_RPC_URL={{ l1_rpc_url }}",
           }
         - {
             regexp: "^L1_BEACON_URL=.*",
-            replace: "L1_BEACON_URL=http://{{ l1_server_ip }}:15052",
+            replace: "L1_BEACON_URL={{ l1_beacon_rpc_url }}",
           }
         - {
             regexp: "^L1_CHAIN_ID=.*",

@@ -107,11 +107,11 @@ once it's done, ssh into the server with `ssh <l2-server-hostname>` and:
 
 after it's up, you can test with:
 ```
-make verify-op-devnet # on the L2 server
+make l2-verify # on the L2 server
 cast block latest --rpc-url http://<l2-server-ip>:9545 # from anywhere
 ```
 
-you can also access the bridge UI at `http://<l2-server-ip>:3002/`
+you can also access the explorer at `http://<l2-server-ip>:3001/` and bridge UI at `http://<l2-server-ip>:3002/`
 
 ## To start Babylon devnet and finality gadget
 
