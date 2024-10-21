@@ -1,0 +1,53 @@
+---
+- import_playbook: debian_server_setup_playbook.yml
+
+- name: Setup Bitcoin node for op-babylon devnet
+  hosts: all
+  become: yes
+  become_flags: -E
+
+  vars:
+    shared_user: snapchain # Ensure this matches the base playbook
+
+  tasks:
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - jq
+        state: present
+
+    - name: Clone babylon deployment repository
+      ansible.builtin.git:
+        repo: "git@github.com:Snapchain/babylon-deployment.git"
+        dest: "/home/{{ shared_user }}/babylon-deployment"
+        version: main
+        accept_hostkey: yes
+
+    - name: Copy .env.bitcoin.example to .env.bitcoin
+      ansible.builtin.copy:
+        src: /home/{{ shared_user }}/babylon-deployment/.env.bitcoin.example
+        dest: /home/{{ shared_user }}/babylon-deployment/.env.bitcoin
+        remote_src: yes
+        force: no
+
+    - name: Update .env.bitcoin file with custom values
+      ansible.builtin.replace:
+        path: /home/{{ shared_user }}/babylon-deployment/.env.bitcoin
+        regexp: "{{ item.regexp }}"
+        replace: "{{ item.replace }}"
+      loop:
+        - { regexp: '^NETWORK=.*', replace: 'NETWORK={{ network }}' }
+        - { regexp: '^RPC_PORT=.*', replace: 'RPC_PORT={{ rpc_port }}' }
+        - { regexp: '^RPC_USER=.*', replace: 'RPC_USER={{ rpc_user }}' }
+        - { regexp: '^RPC_PASS=.*', replace: 'RPC_PASS={{ rpc_pass }}' }
+        - { regexp: '^BTC_WALLET_NAME=.*', replace: 'BTC_WALLET_NAME={{ btc_wallet_name }}' }
+        - { regexp: '^BTC_WALLET_PASS=.*', replace: 'BTC_WALLET_PASS={{ btc_wallet_pass }}' }
+        - { regexp: '^BTC_PRIVKEY=.*', replace: 'BTC_PRIVKEY={{ btc_privkey }}' }
+        - { regexp: '^ZMQ_SEQUENCE_PORT=.*', replace: 'ZMQ_SEQUENCE_PORT={{ zmq_sequence_port }}' }
+        - { regexp: '^ZMQ_RAWBLOCK_PORT=.*', replace: 'ZMQ_RAWBLOCK_PORT={{ zmq_rawblock_port }}' }
+        - { regexp: '^ZMQ_RAWTR_PORT=.*', replace: 'ZMQ_RAWTR_PORT={{ zmq_rawtr_port }}' }
+
+    - name: Launch Bitcoin node
+      ansible.builtin.shell:
+        cmd: make start-bitcoin
+        chdir: /home/{{ shared_user }}/babylon-deployment

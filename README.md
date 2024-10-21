@@ -135,6 +135,28 @@ once it's done, ssh into the server with `ssh <server-hostname>` and run:
 sudo chown snapchain:snapchain -R ~/babylon && cd ~/babylon/deployments/finality-gadget-integration-op-l2  && make start-babylon
 ```
 
+## To start Bitcoin node
+
+1. Configure the inventory file
+
+```bash
+cp bitcoin.ini.example bitcoin.ini
+```
+
+replace the IP address with the one you reserved on GCP. add other required variables.
+
+2. Start Bitcoin node
+
+```bash
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i bitcoin.ini debian_op_babylon_devnet_bitcoin.yml
+```
+
+once it's done, ssh into the server with `ssh <server-hostname>` and check the bitcoin node sync status with:
+
+```bash
+cd ~/babylon-deployment && make verify-bitcoin-sync-balance
+```
+
 ## Notes
 
 The playbook now only supports debian servers (default on GCP)

@@ -1,0 +1,18 @@
+[gcp_vm]
+# <SERVER_IP> ansible_user=<SERVER_USERNAME> ansible_ssh_private_key_file=<LOCAL_PATH_TO_SSH_KEY>
+32.109.87.65 ansible_user=satoshi ansible_ssh_private_key_file=/Users/satoshi/.ssh/google_compute_engine
+
+[gcp_vm:vars]
+# signet | regtest
+network=signet
+# 38332 (signet) | 18443 (regtest)
+rpc_port=38332
+rpc_user=rpcuser
+rpc_pass=rpcpass
+btc_wallet_name=btcwallet
+btc_wallet_pass=walletpass
+# private key for btc account
+btc_privkey=cRvCqiuhGEPeCpkcwttMbNSMDkkaEXmMxSmLWJjPPXzgB3CjdcaS
+zmq_sequence_port=29000
+zmq_rawblock_port=29001
+zmq_rawtr_port=29002
